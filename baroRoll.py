@@ -9,14 +9,16 @@ LIST_DIR = os.path.join(BASE_DIR, "roll_list/")
 
 list_files = listdir("roll_list")
 print(list_files)
+print("출결관리 프로그램v2.0 \n장애발생 시 삼양초 '이은섭'으로 메세지 주세요. :)")
+
 
 for f in list_files:
     # 파일 읽기
     # 실행 중 생성되는 임시파일 무시
     if not '.xlsx' in f:
         continue
-    f = os.path.join(LIST_DIR, f)
-    wb = openpyxl.load_workbook(f, read_only=True)
+    read_f = os.path.join(LIST_DIR, f)
+    wb = openpyxl.load_workbook(read_f, read_only=True)
 
     sheets = wb.get_sheet_names()
     sheet = wb.get_sheet_by_name(sheets[0])
@@ -64,11 +66,11 @@ for f in list_files:
     # print(data)
 
     # 이수 시각 기준으로 재정렬
-    reordered = []
+    reordered = [['이름', '과목', '이수시간', '소요시간']]
     temp = []
     for i in range(len(data)):
         if i == 0:
-            data[i].append('소요 시간')
+
             continue
         if not i % count_subjects == 0:
             temp.append(data[i])
@@ -90,7 +92,7 @@ for f in list_files:
                         continue
                     elif elapsed < timedelta(hours=24):
                         dt = datetime(2020, 1, 1, 0, 0, 0) + elapsed
-                        elapsed = f'({dt.time()}'
+                        elapsed = f'({dt.time()})'
                     else:
                         elapsed = '(다른 날 수강)'
                 else:
@@ -100,7 +102,20 @@ for f in list_files:
                 reordered.append(item)
             temp = []
 
-    print(reordered)
+    # print(reordered)
+
+    # 엑셀 파일에 쓰기
+    RESULT_DIR = os.path.join(BASE_DIR, "results")
+    result_filename = os.path.join(RESULT_DIR, '(학습시간)' + f)
+
+    result_wb = openpyxl.Workbook()
+    result_ws = result_wb.active
+    result_ws.title = "학습시간"
+    for row in reordered:
+        # print(row)
+        result_ws.append(row)
+
+    result_wb.save(result_filename)
 
 
 class Student:
