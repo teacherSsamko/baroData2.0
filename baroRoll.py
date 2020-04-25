@@ -1,27 +1,40 @@
 import openpyxl
 import os
+import locale
 from os import listdir
 from datetime import datetime, timedelta
 
+print('*'*50)
+print("출결관리 프로그램v2.0 \n장애발생 시 삼양초 '이은섭'으로 메세지 주세요. :)")
+print('*'*50)
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 LIST_DIR = os.path.join(BASE_DIR, "roll_list/")
+locale.setlocale(locale.LC_ALL, '')
 
 list_files = listdir("roll_list")
-print(list_files)
-print("출결관리 프로그램v2.0 \n장애발생 시 삼양초 '이은섭'으로 메세지 주세요. :)")
 
+days = []
 
 for f in list_files:
     # 파일 읽기
     # 실행 중 생성되는 임시파일 무시
     if not '.xlsx' in f:
         continue
+
+    thisDay = f.split("-")[-1].rstrip('.xlsx')
+    thisDay = datetime.strptime(thisDay, "%m월%d일")
+    thisDay = thisDay.replace(year=2020)
+    days.append(thisDay.strftime("%m%d"))
+    thisDay = thisDay.strftime("%m월%d일(%a)")
+
+    print('[처리중인 파일]')
+    print(f)
     read_f = os.path.join(LIST_DIR, f)
     wb = openpyxl.load_workbook(read_f, read_only=True)
 
-    sheets = wb.get_sheet_names()
-    sheet = wb.get_sheet_by_name(sheets[0])
+    sheets = wb.sheetnames
+    sheet = wb[sheets[0]]
 
     # 학생 수, 과목 수
     count_students = sheet.max_row - 1
@@ -63,8 +76,6 @@ for f in list_files:
                 # print(checked_time)
             data.append([s_name, subj, checked_time])
 
-    # print(data)
-
     # 이수 시각 기준으로 재정렬
     reordered = [['이름', '과목', '이수시간', '소요시간']]
     temp = []
@@ -102,24 +113,18 @@ for f in list_files:
                 reordered.append(item)
             temp = []
 
-    # print(reordered)
-
-    # 엑셀 파일에 쓰기
-    RESULT_DIR = os.path.join(BASE_DIR, "results")
-    result_filename = os.path.join(RESULT_DIR, '(학습시간)' + f)
-
     result_wb = openpyxl.Workbook()
     result_ws = result_wb.active
-    result_ws.title = "학습시간"
+    result_ws.title = thisDay
     for row in reordered:
-        # print(row)
+
         result_ws.append(row)
 
-    result_wb.save(result_filename)
-
-
-class Student:
-    subjects = []
-
-    def __init__(self):
-        pass
+# 엑셀 파일에 쓰기
+school_infos = f.split('-')[:-1]
+file_prefix = '_'.join(school_infos)
+file_period = f'{days[0]}~{days[-1]}'
+RESULT_DIR = os.path.join(BASE_DIR, "results")
+result_filename = os.path.join(
+    RESULT_DIR, f'(출결){file_prefix}_{file_period}.xlsx')
+result_wb.save(result_filename)
