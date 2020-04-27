@@ -9,19 +9,19 @@ class BaroRoll:
         self.count_students = self.sheet.max_row - 1
         self.count_subjects = self.sheet.max_column - 1
         self.subjects = []
-        self.make_subjects()
+        self._make_subjects()
         self.data = [['이름', '과목', '이수 시간']]
-        self.make_data()
+        self._make_data()
         self.reordered = [['이름', '과목', '이수시간', '소요시간']]
-        self.reorder()
+        self._reorder()
 
-    def make_subjects(self):
+    def _make_subjects(self):
         for i in range(self.count_subjects):
             subject = self.sheet.cell(row=1, column=i + 2).value
             subject = subject.split("-")[1]
             self.subjects.append(subject)
         
-    def make_data(self):
+    def _make_data(self):
         for student in range(2, self.count_students + 2):
             for subject in range(2, self.count_subjects + 2):
                 s_name = self.sheet.cell(row=student, column=1).value
@@ -38,7 +38,7 @@ class BaroRoll:
                     checked_time = checked_time.strftime("%m/%d %H:%M")
                 self.data.append([s_name, subj, checked_time])
     
-    def reorder(self):
+    def _reorder(self):
         temp = []
         for i in range(len(self.data)):
             if i == 0:
