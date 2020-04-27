@@ -12,9 +12,6 @@ from openpyxl.styles.differential import DifferentialStyle
 
 from roll import BaroRoll
 
-print('*'*50)
-print("출결관리 프로그램v2.0 \n장애발생 시 삼양초 '이은섭'으로 메세지 주세요. :)")
-print('*'*50)
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 LIST_DIR = os.path.join(BASE_DIR, "roll_list/")
@@ -69,8 +66,6 @@ for f in list_files:
 
     # BaroRoll 인스턴스 생성
     baro = BaroRoll(wb)
-
-    sheet = baro.sheet
 
     # 학생 수, 과목 수
     print('학생 수:', baro.count_students)
